@@ -1,0 +1,55 @@
+version: '3.5'
+
+services:
+
+  server:
+    image: rancher/rancher:latest
+    privileged: true
+    container_name: rancher
+    networks:
+      - traefik
+    volumes: 
+      - "opt/rancher:/var/lib/rancher"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rancher.rule=Host(YOURHOST)"
+      - "traefik.http.services.rancher.loadbalancer.server.port=80"
+      - "traefik.http.routers.rancher.entrypoints=https"
+
+
+networks:
+  traefik:
+    external: true
+
+---
+services:
+  traefik:
+    image: YOUR-REPO:2.1
+    command:
+      #- "--log.level=DEBUG"
+      - "--configFile=/etc/traefik/traefik.toml"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - traefik
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.traefik.rule=Host(`traefik.YOUR-DOMAIN.es`)"
+        - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+        - "traefik.http.routers.traefik.entrypoints=https"
+        - "traefik.http.routers.traefik.tls=true"
+        # middleware redirect && global redirect to https
+        - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+        - "traefik.http.routers.redirs.rule=hostregexp(`{host:.+}`)"
+        - "traefik.http.routers.redirs.entrypoints=http"
+        - "traefik.http.routers.redirs.middlewares=redirect-to-https"
+
+networks:
+  traefik:
+    external: true

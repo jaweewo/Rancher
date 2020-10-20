@@ -1,0 +1,6 @@
+# Dynamic configuration
+
+[tls]
+  [[tls.certificates]]
+    certFile = "/etc/traefik/ssl/YOUR-DOMAIN.crt"
+    keyFile = "/etc/traefik/ssl/YOUR-DOMAIN.key"
