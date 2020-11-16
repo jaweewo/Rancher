@@ -9,7 +9,7 @@ services:
     networks:
       - traefik
     volumes: 
-      - "opt/rancher:/var/lib/rancher"
+      - "/opt/rancher:/var/lib/rancher"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rancher.rule=Host(YOURHOST)"
